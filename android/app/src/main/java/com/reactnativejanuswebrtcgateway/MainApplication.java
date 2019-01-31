@@ -1,10 +1,9 @@
 package com.reactnativejanuswebrtcgateway;
 
 import android.app.Application;
+import com.zxcpoiu.incallmanager.InCallManagerPackage;
 
 import com.facebook.react.ReactApplication;
-import com.oblador.vectoricons.VectorIconsPackage;
-import com.zxcpoiu.incallmanager.InCallManagerPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -12,8 +11,6 @@ import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
 import java.util.List;
-
-import com.oney.WebRTCModule.WebRTCModulePackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -27,9 +24,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new VectorIconsPackage(),
-            new InCallManagerPackage(),
-          new WebRTCModulePackage()   
+          new InCallManagerPackage()
       );
     }
 

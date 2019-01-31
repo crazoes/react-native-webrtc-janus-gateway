@@ -14,19 +14,19 @@ import {
 
   /*
       The MIT License (MIT)
-  
+
       Copyright (c) 2016 Meetecho
-  
+
       Permission is hereby granted, free of charge, to any person obtaining
       a copy of this software and associated documentation files (the "Software"),
       to deal in the Software without restriction, including without limitation
       the rights to use, copy, modify, merge, publish, distribute, sublicense,
       and/or sell copies of the Software, and to permit persons to whom the
       Software is furnished to do so, subject to the following conditions:
-  
+
       The above copyright notice and this permission notice shall be included
       in all copies or substantial portions of the Software.
-  
+
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
       OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
       FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
@@ -35,10 +35,10 @@ import {
       ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
       OTHER DEALINGS IN THE SOFTWARE.
    */
-  
+
   // List of sessions
   Janus.sessions = {};
-  
+
   // Screensharing Chrome Extension ID
   Janus.extensionId = "hapfgfdkleiggjjpfpenajgdnfckjpaj";
   // Janus.isExtensionEnabled = function() {
@@ -57,9 +57,9 @@ import {
   //         return true;
   //     }
   // };
-  
+
   Janus.noop = function() {};
-  
+
   // Initialization
   Janus.init = function(options) {
       options = options || {};
@@ -210,7 +210,7 @@ import {
           //     }
           //     var count = 0;
           //     addJs(srcArray[count],next);
-  
+
           //     function next() {
           //         count++;
           //         if (count<srcArray.length) {
@@ -243,13 +243,13 @@ import {
           // addJsList(["adapter.js"]);  // We may need others in the future
       }
   };
-  
+
   // Helper method to check whether WebRTC is supported by this browser
   Janus.isWebrtcSupported = function() {
       return window.RTCPeerConnection && window.getUserMedia;
   };
-  
-  
+
+
   // Janus session object
   function Janus(gatewayCallbacks) {
   // function Janus(gatewayCallbacks) {
@@ -275,7 +275,7 @@ import {
       var ws = null;
       var wsHandlers = {};
       var wsKeepaliveTimeoutId = null;
-  
+
       var servers = null, serversIndex = 0;
       var server = gatewayCallbacks.server;
       var camera_front = gatewayCallbacks.camera_front;
@@ -318,7 +318,7 @@ import {
       this.destroyOnUnload = true;
       if(gatewayCallbacks.destroyOnUnload !== undefined && gatewayCallbacks.destroyOnUnload !== null)
           this.destroyOnUnload = (gatewayCallbacks.destroyOnUnload === true);
-  
+
       var connected = false;
       var sessionId = null;
       var pluginHandles = {};
@@ -327,14 +327,14 @@ import {
       var transactions = {};
       console.log("sample")
       createSession(gatewayCallbacks);
-  
+
       // Public methods
       this.getServer = function() { return server; };
       this.isConnected = function() { return connected; };
       this.getSessionId = function() { return sessionId; };
       this.destroy = function(callbacks) { destroySession(callbacks); };
       this.attach = function(callbacks) { createHandle(callbacks); };
-  
+
       // Private method to create random identifiers (e.g., transaction)
       function randomString(len) {
           charSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -345,7 +345,7 @@ import {
           }
           return randomString;
       }
-  
+
       function eventHandler() {
           if(sessionId == null)
               return;
@@ -386,7 +386,7 @@ import {
               dataType: "json"
           });
       }
-  
+
       // Private event handler: this will trigger plugin callbacks, if set
       function handleEvent(json) {
           retries = 0;
@@ -530,7 +530,7 @@ import {
               Janus.warn("Unknown message '" + json["janus"] + "'");
           }
       }
-  
+
       // Private helper to send keep-alive messages on WebSockets
       function keepAlive() {
           if(server === null || !websockets || !connected)
@@ -543,7 +543,7 @@ import {
               request["apisecret"] = apisecret;
           ws.send(JSON.stringify(request));
       }
-  
+
       // Private method to create a session
       function createSession(callbacks) {
           var transaction = randomString(12);
@@ -572,7 +572,7 @@ import {
                           serversIndex++;
                           if (serversIndex == servers.length) {
                               // We tried all the servers the user gave us and they all failed
-                              callbacks.error("Error connecting to any of the provided Janus servers: Is the gateway down?");
+                              callbacks.error("Error connecting to any of the provided Janus servers: Is the gateway down?: server: " + server);
                               return;
                           }
                           // Let's try the next server
@@ -584,7 +584,7 @@ import {
                       }
                       callbacks.error("Error connecting to the Janus WebSockets server: Is the gateway down?");
                   },
-  
+
                   'open': function() {
                       // We need to be notified about the success
                       transactions[transaction] = function(json) {
@@ -603,11 +603,11 @@ import {
                       };
                       ws.send(JSON.stringify(request));
                   },
-  
+
                   'message': function(event) {
                       handleEvent(JSON.parse(event.data));
                   },
-  
+
                   'close': function() {
                       if (server === null || !connected) {
                           return;
@@ -617,11 +617,11 @@ import {
                       gatewayCallbacks.error("Lost connection to the gateway (is it down?)");
                   }
               };
-  
+
               for(var eventName in wsHandlers) {
                   ws.addEventListener(eventName, wsHandlers[eventName]);
               }
-  
+
               return;
           }
           console.log("Janus.ajax({})")
@@ -673,7 +673,7 @@ import {
               dataType: "json"
           });
       }
-  
+
       // Private method to destroy a session
       function destroySession(callbacks, syncRequest) {
           syncRequest = (syncRequest === true);
@@ -707,7 +707,7 @@ import {
               request["apisecret"] = apisecret;
           if(websockets) {
               request["session_id"] = sessionId;
-  
+
               var unbindWebSocket = function() {
                   for(var eventName in wsHandlers) {
                       ws.removeEventListener(eventName, wsHandlers[eventName]);
@@ -718,7 +718,7 @@ import {
                       clearTimeout(wsKeepaliveTimeoutId);
                   }
               };
-  
+
               var onUnbindMessage = function(event){
                   var data = JSON.parse(event.data);
                   if(data.session_id == request.session_id && data.transaction == request.transaction) {
@@ -732,10 +732,10 @@ import {
                   callbacks.error("Failed to destroy the gateway: Is the gateway down?");
                   gatewayCallbacks.destroyed();
               };
-  
+
               ws.addEventListener('message', onUnbindMessage);
               ws.addEventListener('error', onUnbindError);
-  
+
               ws.send(JSON.stringify(request));
               return;
           }
@@ -772,7 +772,7 @@ import {
               dataType: "json"
           });
       }
-  
+
       // Private method to create a plugin handle
       function createHandle(callbacks) {
           callbacks = callbacks || {};
@@ -966,7 +966,7 @@ import {
               dataType: "json"
           });
       }
-  
+
       // Private method to send a message
       function sendMessage(handleId, callbacks) {
           callbacks = callbacks || {};
@@ -1068,7 +1068,7 @@ import {
               dataType: "json"
           });
       }
-  
+
       // Private method to send a trickle candidate
       function sendTrickleCandidate(handleId, candidate) {
           if(!connected) {
@@ -1108,7 +1108,7 @@ import {
               dataType: "json"
           });
       }
-  
+
       // Private method to send a data channel message
       function sendData(handleId, callbacks) {
           callbacks = callbacks || {};
@@ -1132,7 +1132,7 @@ import {
           config.dataChannel.send(text);
           callbacks.success();
       }
-  
+
       // Private method to send a DTMF tone
       function sendDtmf(handleId, callbacks) {
           callbacks = callbacks || {};
@@ -1184,7 +1184,7 @@ import {
           Janus.debug("Sending DTMF string " + tones + " (duration " + duration + "ms, gap " + gap + "ms");
           config.dtmfSender.insertDTMF(tones, duration, gap);
       }
-  
+
       // Private method to destroy a plugin handle
       function destroyHandle(handleId, callbacks, syncRequest) {
           syncRequest = false ;
@@ -1236,15 +1236,15 @@ import {
               dataType: "json"
           });
       }
-  
-  
-  
-  
+
+
+
+
       // WebRTC stuff
       function changeLocalCamera(handleId) {
-          localstream._tracks[1]._switchCamera()             
+          localstream._tracks[1]._switchCamera()
       }
-  
+
       function streamsDone(handleId, jsep, media, callbacks, stream) {
           var pluginHandle = pluginHandles[handleId];
           if(pluginHandle === null || pluginHandle === undefined ||
@@ -1273,14 +1273,14 @@ import {
           config.pc = new RTCPeerConnection(pc_config, pc_constraints);
           Janus.debug(config.pc);
           console.log(config.pc);
-  
+
           if(config.pc.getStats) {    // FIXME
               config.volume.value = 0;
               config.bitrate.value = "0 kbits/sec";
           }
           Janus.log("Preparing local SDP and gathering candidates (trickle=" + config.trickle + ")");
           console.log("Preparing local SDP and gathering candidates (trickle=" + config.trickle + ")");
-  
+
           config.pc.onicecandidate = function(event) {
               // console.log("config.pc.onicecandidate")
               // if (event.candidate == null ||
@@ -1310,18 +1310,18 @@ import {
                   }
               // }
           };
-  
-  
+
+
           if(stream !== null && stream !== undefined) {
               Janus.log('Adding local stream');
               console.log('Adding local stream')
               config.pc.addStream(stream);
               console.log('Adding local end')
               pluginHandle.onlocalstream(stream);
-  
+
               localstream = stream
           }
-  
+
           config.pc.onaddstream = function(remoteStream) {
               Janus.log("Handling Remote Stream");
               console.log("Handling Remote Stream");
@@ -1368,7 +1368,7 @@ import {
                       }, callbacks.error);
           }
       }
-  
+
       function prepareWebrtc(handleId, callbacks) {
           callbacks = callbacks || {};
           callbacks.success = (typeof callbacks.success == "function") ? callbacks.success : Janus.noop;
@@ -1593,7 +1593,7 @@ import {
                               return;
                           }
                       }
-  
+
                       // Wait for events from the Chrome Extension
                       window.addEventListener('message', function (event) {
                           if(event.origin != window.location.origin)
@@ -1602,7 +1602,7 @@ import {
                               var data = cache[event.data.id];
                               var callback = data[0];
                               delete cache[event.data.id];
-  
+
                               if (event.data.sourceId === '') {
                                   // user canceled
                                   var error = new Error('NavigatorUserMediaError');
@@ -1662,7 +1662,7 @@ import {
               streamsDone(handleId, jsep, media, callbacks);
           }
       }
-  
+
       function prepareWebrtcPeer(handleId, callbacks) {
           callbacks = callbacks || {};
           callbacks.success = (typeof callbacks.success == "function") ? callbacks.success : Janus.noop;
@@ -1692,7 +1692,7 @@ import {
               callbacks.error("Invalid JSEP");
           }
       }
-  
+
       function createOffer(handleId, media, callbacks) {
           callbacks = callbacks || {};
           callbacks.success = (typeof callbacks.success == "function") ? callbacks.success : Janus.noop;
@@ -1722,8 +1722,8 @@ import {
               };
           // }
           Janus.debug(mediaConstraints);
-  
-  
+
+
           config.pc.createOffer(
               function(offer) {
                   Janus.debug(offer);
@@ -1731,7 +1731,7 @@ import {
                       console.log("Setting local description");
                       config.mySdp = offer.sdp;
                       // config.pc.setLocalDescription(offer);
-  
+
                       config.pc.setLocalDescription(offer, () => {
                       console.log('setLocalDescription', config.pc.localDescription);
                       }, function(e) {});
@@ -1757,7 +1757,7 @@ import {
                   callbacks.success(jsep);
               }, function(e) {});
       }
-  
+
       function createAnswer(handleId, media, callbacks) {
           callbacks = callbacks || {};
           callbacks.success = (typeof callbacks.success == "function") ? callbacks.success : Janus.noop;
@@ -1818,7 +1818,7 @@ import {
                   callbacks.success(jsep);
               }, callbacks.error, mediaConstraints);
       }
-  
+
       function sendSDP(handleId, callbacks) {
           callbacks = callbacks || {};
           callbacks.success = (typeof callbacks.success == "function") ? callbacks.success : Janus.noop;
@@ -1849,7 +1849,7 @@ import {
           config.sdpSent = true;
           callbacks.success(config.mySdp);
       }
-  
+
       function getVolume(handleId) {
           var pluginHandle = pluginHandles[handleId];
           if(pluginHandle === null || pluginHandle === undefined ||
@@ -1886,7 +1886,7 @@ import {
               return 0;
           }
       }
-  
+
       function isMuted(handleId, video) {
           var pluginHandle = pluginHandles[handleId];
           if(pluginHandle === null || pluginHandle === undefined ||
@@ -1923,7 +1923,7 @@ import {
               return !config.myStream.getAudioTracks()[0].enabled;
           }
       }
-  
+
       function mute(handleId, video, mute) {
           var pluginHandle = pluginHandles[handleId];
           if(pluginHandle === null || pluginHandle === undefined ||
@@ -1962,7 +1962,7 @@ import {
               return true;
           }
       }
-  
+
       function getBitrate(handleId) {
           var pluginHandle = pluginHandles[handleId];
           if(pluginHandle === null || pluginHandle === undefined ||
@@ -2060,14 +2060,14 @@ import {
               return "Feature unsupported by browser";
           }
       }
-  
+
       function webrtcError(error) {
           Janus.error("WebRTC error:", error);
       }
-  
+
       function cleanupWebrtc(handleId, hangupRequest) {
-  
-  
+
+
           Janus.log("Cleaning WebRTC stuff");
           console.log(handleId)
           console.log(hangupRequest)
@@ -2167,7 +2167,7 @@ import {
           }
           pluginHandle.oncleanup();
       }
-  
+
       // Helper methods to parse a media object
       function isAudioSendEnabled(media) {
           Janus.debug("isAudioSendEnabled:", media);
@@ -2179,7 +2179,7 @@ import {
               return true;    // Default
           return (media.audioSend === true);
       }
-  
+
       function isAudioRecvEnabled(media) {
           Janus.debug("isAudioRecvEnabled:", media);
           if(media === undefined || media === null)
@@ -2190,7 +2190,7 @@ import {
               return true;    // Default
           return (media.audioRecv === true);
       }
-  
+
       function isVideoSendEnabled(media) {
           Janus.debug("isVideoSendEnabled:", media);
           // if(webrtcDetectedBrowser == "edge") {
@@ -2205,7 +2205,7 @@ import {
               return true;    // Default
           return (media.videoSend === true);
       }
-  
+
       function isVideoRecvEnabled(media) {
           Janus.debug("isVideoRecvEnabled:", media);
           // if(webrtcDetectedBrowser == "edge") {
@@ -2220,7 +2220,7 @@ import {
               return true;    // Default
           return (media.videoRecv === true);
       }
-  
+
       function isDataEnabled(media) {
           Janus.debug("isDataEnabled:", media);
           // if(webrtcDetectedBrowser == "edge") {
@@ -2231,7 +2231,7 @@ import {
               return false;   // Default
           return (media.data === true);
       }
-  
+
       function isTrickleEnabled(trickle) {
           Janus.debug("isTrickleEnabled:", trickle);
           if(trickle === undefined || trickle === null)
@@ -2239,6 +2239,6 @@ import {
           return (trickle === true);
       }
   };
-  
-  
+
+
   module.exports =  Janus

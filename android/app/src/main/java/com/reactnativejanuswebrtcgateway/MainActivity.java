@@ -1,6 +1,7 @@
 package com.reactnativejanuswebrtcgateway;
 
 import com.facebook.react.ReactActivity;
+import com.zxcpoiu.incallmanager.InCallManagerPackage;
 
 public class MainActivity extends ReactActivity {
 
